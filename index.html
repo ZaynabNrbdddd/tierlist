@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tier List Generator</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- TITRE -->
+  <header>
+    <h1>Tier List <span class="accent">Generator</span></h1>
+    <p class="sous-titre">Glisse les images dans les tiers pour les classer</p>
+  </header>
+
+  <main>
+
+    <!-- LES TIERS -->
+    <div id="tiers-container">
+
+      <div class="tier-row">
+        <div class="tier-label" style="background-color: #ff7f7f;">S</div>
+        <div class="tier-zone" id="tier-s"></div>
+      </div>
+
+      <div class="tier-row">
+        <div class="tier-label" style="background-color: #ffbf7f;">A</div>
+        <div class="tier-zone" id="tier-a"></div>
+      </div>
+
+      <div class="tier-row">
+        <div class="tier-label" style="background-color: #ffdf7f;">B</div>
+        <div class="tier-zone" id="tier-b"></div>
+      </div>
+
+      <div class="tier-row">
+        <div class="tier-label" style="background-color: #ffff7f;">C</div>
+        <div class="tier-zone" id="tier-c"></div>
+      </div>
+
+      <div class="tier-row">
+        <div class="tier-label" style="background-color: #bfff7f;">D</div>
+        <div class="tier-zone" id="tier-d"></div>
+      </div>
+
+    </div>
+
+    <!-- POOL -->
+    <div id="pool">
+      <h2>Images à classer</h2>
+      <div id="pool-images">
+        
+      </div>
+    </div>
+
+    <!-- BOUTONS -->
+    <div id="boutons">
+      <label class="btn btn-upload" for="input-upload">+ Ajouter des images</label>
+      <input type="file" id="input-upload" accept="image/*" multiple hidden>
+      <button class="btn btn-reset" id="btn-reset">Reset</button>
+    </div>
+
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
