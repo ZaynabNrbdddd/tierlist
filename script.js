@@ -153,78 +153,87 @@ document.getElementById('btn-export').addEventListener('click', function () {
   const ITEM_SIZE = 70;
   const PADDING = 5;
   const ROW_H = 80;
+  const GAP = 4;
 
   const canvas = document.createElement('canvas');
   canvas.width = 900;
-  canvas.height = rows.length * (ROW_H + 4);
-  const ctx = canvas.getContext('2d');
+  canvas.height = rows.length * (ROW_H + GAP);
+  const ctx = canvas.getContext('2d', { willReadFrequently: true });
 
-  let y = 0;
+  const rowsArray = Array.from(rows);
+  let rowIndex = 0;
 
-  const dessinerRow = (row, yPos, callback) => {
+  function dessinerRow(row, yPos, callback) {
     const label = row.querySelector('.tier-label');
     const zone = row.querySelector('.tier-zone');
-    const items = zone.querySelectorAll('.tier-item');
+    const items = Array.from(zone.querySelectorAll('.tier-item'));
 
-    // fond de la rangée
+    // fond
     ctx.fillStyle = '#16213e';
     ctx.fillRect(0, yPos, canvas.width, ROW_H);
 
-    // couleur du label
-    const bgColor = label.style.backgroundColor || '#888';
-    ctx.fillStyle = bgColor;
+    // label couleur
+    ctx.fillStyle = label.style.backgroundColor || '#888';
     ctx.fillRect(0, yPos, LABEL_W, ROW_H);
 
-    // lettre du label
+    // lettre
     ctx.fillStyle = '#000';
     ctx.font = 'bold 36px Segoe UI';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillText(label.textContent.trim(), LABEL_W / 2, yPos + ROW_H / 2);
 
-    // images
-    const imgs = Array.from(items);
-    let loaded = 0;
-
-    if (imgs.length === 0) {
+    if (items.length === 0) {
       callback();
       return;
     }
 
-    imgs.forEach(function (img, i) {
+    let loaded = 0;
+
+    items.forEach(function (imgEl, i) {
       const x = LABEL_W + PADDING + i * (ITEM_SIZE + PADDING);
-      const imgEl = new Image();
-      imgEl.src = img.src;
-      imgEl.onload = function () {
-        ctx.drawImage(imgEl, x, yPos + PADDING, ITEM_SIZE, ITEM_SIZE);
-        loaded++;
-        if (loaded === imgs.length) callback();
-      };
-      imgEl.onerror = function () {
-        loaded++;
-        if (loaded === imgs.length) callback();
-      };
-    });
-  };
 
-  let index = 0;
+      // On crée une nouvelle image à partir du src déjà chargé
+      const newImg = new Image();
+      newImg.crossOrigin = 'anonymous';
 
-  function dessinerSuivant() {
-    if (index >= rows.length) {
-      // téléchargement
-      const lien = document.createElement('a');
-      lien.download = 'tierlist.png';
-      lien.href = canvas.toDataURL('image/png');
-      lien.click();
-      return;
-    }
-    dessinerRow(rows[index], index * (ROW_H + 4), function () {
-      index++;
-      dessinerSuivant();
+      newImg.onload = function () {
+        ctx.drawImage(newImg, x, yPos + PADDING, ITEM_SIZE, ITEM_SIZE);
+        loaded++;
+        if (loaded === items.length) callback();
+      };
+
+      newImg.onerror = function () {
+        // si l'image échoue on dessine un carré gris à la place
+        ctx.fillStyle = '#333';
+        ctx.fillRect(x, yPos + PADDING, ITEM_SIZE, ITEM_SIZE);
+        loaded++;
+        if (loaded === items.length) callback();
+      };
+
+      newImg.src = imgEl.src;
     });
   }
 
-  dessinerSuivant();
+  function suite() {
+    if (rowIndex >= rowsArray.length) {
+      try {
+        const lien = document.createElement('a');
+        lien.download = 'tierlist.png';
+        lien.href = canvas.toDataURL('image/png');
+        lien.click();
+      } catch (e) {
+        alert('Export impossible : ' + e.message);
+      }
+      return;
+    }
+    dessinerRow(rowsArray[rowIndex], rowIndex * (ROW_H + GAP), function () {
+      rowIndex++;
+      suite();
+    });
+  }
+
+  suite();
 });
 // Initialisation
 mettreAJourCompteurs();
