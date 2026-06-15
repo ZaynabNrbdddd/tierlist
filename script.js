@@ -144,6 +144,87 @@ function mettreAJourCompteurs() {
     zone.setAttribute('data-count', nb);
   });
 }
+// ================================================================
+// EXPORT PNG
+// ================================================================
+document.getElementById('btn-export').addEventListener('click', function () {
+  const rows = document.querySelectorAll('.tier-row');
+  const LABEL_W = 80;
+  const ITEM_SIZE = 70;
+  const PADDING = 5;
+  const ROW_H = 80;
 
+  const canvas = document.createElement('canvas');
+  canvas.width = 900;
+  canvas.height = rows.length * (ROW_H + 4);
+  const ctx = canvas.getContext('2d');
+
+  let y = 0;
+
+  const dessinerRow = (row, yPos, callback) => {
+    const label = row.querySelector('.tier-label');
+    const zone = row.querySelector('.tier-zone');
+    const items = zone.querySelectorAll('.tier-item');
+
+    // fond de la rangée
+    ctx.fillStyle = '#16213e';
+    ctx.fillRect(0, yPos, canvas.width, ROW_H);
+
+    // couleur du label
+    const bgColor = label.style.backgroundColor || '#888';
+    ctx.fillStyle = bgColor;
+    ctx.fillRect(0, yPos, LABEL_W, ROW_H);
+
+    // lettre du label
+    ctx.fillStyle = '#000';
+    ctx.font = 'bold 36px Segoe UI';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(label.textContent.trim(), LABEL_W / 2, yPos + ROW_H / 2);
+
+    // images
+    const imgs = Array.from(items);
+    let loaded = 0;
+
+    if (imgs.length === 0) {
+      callback();
+      return;
+    }
+
+    imgs.forEach(function (img, i) {
+      const x = LABEL_W + PADDING + i * (ITEM_SIZE + PADDING);
+      const imgEl = new Image();
+      imgEl.src = img.src;
+      imgEl.onload = function () {
+        ctx.drawImage(imgEl, x, yPos + PADDING, ITEM_SIZE, ITEM_SIZE);
+        loaded++;
+        if (loaded === imgs.length) callback();
+      };
+      imgEl.onerror = function () {
+        loaded++;
+        if (loaded === imgs.length) callback();
+      };
+    });
+  };
+
+  let index = 0;
+
+  function dessinerSuivant() {
+    if (index >= rows.length) {
+      // téléchargement
+      const lien = document.createElement('a');
+      lien.download = 'tierlist.png';
+      lien.href = canvas.toDataURL('image/png');
+      lien.click();
+      return;
+    }
+    dessinerRow(rows[index], index * (ROW_H + 4), function () {
+      index++;
+      dessinerSuivant();
+    });
+  }
+
+  dessinerSuivant();
+});
 // Initialisation
 mettreAJourCompteurs();
