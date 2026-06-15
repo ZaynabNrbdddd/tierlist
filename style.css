@@ -258,6 +258,14 @@ h1 {
   color: #ff5252;
   background-color: rgba(255, 82, 82, 0.1);
 }
+.btn-export {
+  background-color: #7c4dff;
+  color: #fff;
+}
+
+.btn-export:hover {
+  background-color: #9c6fff;
+}
 
 /* ==============================
    COMPTEUR PAR TIER
